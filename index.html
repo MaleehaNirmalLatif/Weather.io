@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('https://images5.alphacoders.com/384/384242.jpg');
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            right: 10%;
+            transform: translateY(-58%);
+            z-index: 1;
+            background-color: rgba(211, 215, 216, 0.8);
+            padding: 20px;
+            margin: 50px;
+            border-radius: 20px; /* Make the container round */
+            text-align: center;
+            box-shadow: 0px 0px 20px 0px rgba(98, 95, 95, 0.5);
+            width: 600px;
+        }
+
+        h1 {
+            color: #125881;
+            margin-bottom: 20px;
+        }
+
+        .search-container {
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            border: 2px solid #116a9e;
+            background-color: #cfe0e6;
+            color: rgb(8, 95, 150);
+            width: 200px;
+            margin-right: 10px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #45add6;
+            color: rgb(184, 217, 237);
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0c72a5;
+        }
+
+        .weather-info {
+            color: #0886b8;
+            animation: fadeIn 0.5s ease;
+            margin-top: 20px;
+        }
+
+        .weather-box {
+            background-color: rgba(213, 229, 239, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Now you can check the weather more easily!</h1>
+        <div class="search-container">
+            <input type="text" id="city-input" placeholder="Enter the city name">
+            <button id="search-btn">Enter me to search</button>
+        </div>
+        <div class="weather-info" id="weather-info">
+            <!-- Weather information will be displayed here -->
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('search-btn').addEventListener('click', function () {
+                var city = document.getElementById('city-input').value;
+                if (city.trim() === '') {
+                    alert('Ops! A valid city name is required.');
+                    return;
+                }
+                fetchWeather(city);
+            });
+
+            // Add animation when typing into the input field
+            document.getElementById('city-input').addEventListener('input', function () {
+                this.style.animation = 'none';
+                this.offsetHeight; /* trigger reflow */
+                this.style.animation = null;
+            });
+        });
+
+        function fetchWeather(city) {
+            var apiKey = '9920008360e6212a01a59fd9eb579f46';
+            var xhr = new XMLHttpRequest();
+            var url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        displayWeather(response);
+                    } else {
+                        alert('Ops! Failed to fetch weather data. Please try again :)');
+                    }
+                }
+            };
+
+            xhr.open('GET', url);
+            xhr.send();
+            
+            // Show loading animation
+            document.getElementById('weather-info').innerHTML = '<p>Loading...</p>';
+        }
+
+        function displayWeather(data) {
+            var weatherInfo = document.getElementById('weather-info');
+            weatherInfo.innerHTML = `
+                <div class="weather-box">
+                    <h2>${data.name}, ${data.sys.country}</h2>
+                </div>
+                <div class="weather-box">
+                    <p>Temperature: ${data.main.temp}°C</p>
+                </div>
+                <div class="weather-box">
+                    <p>Weather: ${data.weather[0].main}</p>
+                </div>
+                <div class="weather-box">
+                    <p>Description: ${data.weather[0].description}</p>
+                </div>
+                <div class="weather-box">
+                    <p>Humidity: ${data.main.humidity}%</p>
+                </div>
+                <div class="weather-box">
+                    <p>Wind Speed: ${data.wind.speed} m/s</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
